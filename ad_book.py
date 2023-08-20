@@ -84,9 +84,9 @@ class Record:
             raise KeyError("No birthday set for the contact.")
         
         current_datetime = datetime.now()
-        birthday = self.birthday.value.replace(year=current_datetime.year) #др в цьому році
+        birthday = self.birthday.replace(year=current_datetime.year) #др в цьому році
         if current_datetime > birthday:
-            birthday = self.birthday.value.replace(year=current_datetime.year+1)
+            birthday = self.birthday.replace(year=current_datetime.year+1)
 
         return (current_datetime.data() - birthday).days
         
@@ -113,4 +113,5 @@ if __name__ == "__main__":
     assert isinstance(ab['Bill'].phones[0], Phone)
     assert ab['Bill'].phones[0].value == '12345671258'
     print('All Ok)')
+    print(rec.days_to_birthday())
     
