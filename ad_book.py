@@ -3,7 +3,7 @@ from datetime import datetime
 
 class Field:
     def __init__(self, value: str) -> None:
-        self.__value = None
+        self._value = None
         self.value = value
     
     
@@ -16,12 +16,12 @@ class Name(Field):
 
     @property
     def value(self):
-        return self.__value
+        return self._value
     
     @value.setter
     def value(self, name: str): 
         if len(name) <= 10:
-            self.__value = name
+            self._value = name
         else:
             print ("Too long name") 
 
@@ -34,14 +34,14 @@ class Phone(Field):
 
     @property
     def value(self):
-        return self.__value
+        return self._value
     
     @value.setter
-    def value(self, phone): 
-        if type(phone) == int:
-            self.__value = phone # записати телефон у вигляді +3806523654412?
+    def value(self, phone: str): 
+        if len(phone) <= 12:
+            self._value = phone # яку перевірку зробити?
         else:
-            print("Only numbers could be used")
+            print("Too long number. It should not be more than 10 digits")
 
 class Birthday:
     def __init__(self, birthday):
