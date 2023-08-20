@@ -3,6 +3,7 @@ from datetime import datetime
 
 class Field:
     def __init__(self, value: str) -> None:
+        self.__value = None
         self.value = value
     
     
@@ -10,17 +11,17 @@ class Field:
 
 class Name(Field):
     
-    def __init__(self, value: str) -> None:
-       super().__init__(value)
+    # def __init__(self, value: str) -> None:
+    #    super().__init__(value)
 
     @property
     def value(self):
-        return self.value
+        return self.__value
     
     @value.setter
     def value(self, name: str): 
         if len(name) <= 10:
-            self.value = name
+            self.__value = name
         else:
             print ("Too long name") 
 
@@ -28,17 +29,17 @@ class Name(Field):
 
 class Phone(Field):
     
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    # def __init__(self, value: str) -> None:
+    #     super().__init__(value)
 
     @property
     def value(self):
-        return self.value
+        return self.__value
     
     @value.setter
     def value(self, phone): 
         if type(phone) == int:
-            self.value = phone # записати телефон у вигляді +3806523654412?
+            self.__value = phone # записати телефон у вигляді +3806523654412?
         else:
             print("Only numbers could be used")
 
@@ -52,9 +53,7 @@ class Birthday:
     
     @value.setter
     def value(self, birthday: str): # приходить строка типу 21.05.2000, потрібно перетворити на дататайм?
-        self.birthday = birthday
-
-
+        self.birthday = datetime.strptime(birthday, "%d %B %Y")
 
 
 
@@ -63,7 +62,10 @@ class Record:
     def __init__(self, name: Name, phone: Phone=None, birthday: Birthday=None) -> None:
         self.name = name
         self.phones = [phone] if phone else []
-        self.birthday = birthday
+        if type(birthday) == str: # чи потрібна ці перевірка?
+            birthday = Birthday(birthday)
+        else:
+            self.birthday = birthday
         
     
     def add_phone(self, phone) -> None:
@@ -77,8 +79,12 @@ class Record:
         index = self.phones.index(old_phone)
         self.phones[index] = new_phone
     
-    def days_to_birthday(self, birthday):
-        pass
+    def days_to_birthday(self, birthday: Birthday): # для виклику створюється окремо екземпляр, в якому йде перетворення на обєкт класу Birthday і викликається метод
+        self.birthday = birthday
+        current_datetime = datetime.now()
+        birthday_this_year = birthday.replace(year=current_datetime.year)
+        result = current_datetime.data() - birthday_this_year
+        return result
 
 class AddressBook(UserDict):
     
