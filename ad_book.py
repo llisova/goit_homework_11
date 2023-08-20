@@ -62,7 +62,7 @@ class Record:
     def __init__(self, name: Name, phone: Phone=None, birthday: Birthday=None) -> None:
         self.name = name
         self.phones = [phone] if phone else []
-        if type(birthday) == str: # чи потрібна ці перевірка?
+        if type(birthday) == str: # чи потрібна ця перевірка?
             birthday = Birthday(birthday)
         else:
             self.birthday = birthday
@@ -79,12 +79,17 @@ class Record:
         index = self.phones.index(old_phone)
         self.phones[index] = new_phone
     
-    def days_to_birthday(self, birthday: Birthday): # для виклику створюється окремо екземпляр, в якому йде перетворення на обєкт класу Birthday і викликається метод
-        self.birthday = birthday
+    def days_to_birthday(self): # для виклику створюється окремо екземпляр, в якому йде перетворення на обєкт класу Birthday і викликається метод
+        if self.birthday == None:
+            raise KeyError("No birthday set for the contact.")
+        
         current_datetime = datetime.now()
-        birthday_this_year = birthday.replace(year=current_datetime.year)
-        result = current_datetime.data() - birthday_this_year
-        return result
+        birthday = self.birthday.value.replace(year=current_datetime.year) #др в цьому році
+        if current_datetime > birthday:
+            birthday = self.birthday.value.replace(year=current_datetime.year+1)
+
+        return (current_datetime.data() - birthday).days
+        
 
 class AddressBook(UserDict):
     
@@ -97,13 +102,15 @@ class AddressBook(UserDict):
 
 if __name__ == "__main__":
     name = Name('Bill')
-    phone = Phone('1234567890')
-    rec = Record(name, phone)
+    phone = Phone('12345671258')
+    birthday = Birthday("22.05.2001")
+    rec = Record(name, phone, birthday)
     ab = AddressBook()
     ab.add_record(rec)
     assert isinstance(ab['Bill'], Record)
     assert isinstance(ab['Bill'].name, Name)
     assert isinstance(ab['Bill'].phones, list)
     assert isinstance(ab['Bill'].phones[0], Phone)
-    assert ab['Bill'].phones[0].value == '1234567890'
+    assert ab['Bill'].phones[0].value == '12345671258'
     print('All Ok)')
+    
