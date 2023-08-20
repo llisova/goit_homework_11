@@ -1,59 +1,64 @@
 from collections import UserDict
-from datetime import datetime
+from datetime import date
 
 class Field:
     def __init__(self, value: str) -> None:
         self._value = None
         self.value = value
     
-    
-    
-
-class Name(Field):
-    
-    # def __init__(self, value: str) -> None:
-    #    super().__init__(value)
-
     @property
     def value(self):
         return self._value
     
     @value.setter
+    def value(self, value): 
+        self._value = value
+        
+
+class Name(Field):
+    
+    def __init__(self, value: str) -> None:
+       super().__init__(value)
+
+        
+    @Field.value.setter
     def value(self, name: str): 
-        if len(name) <= 10:
-            self._value = name
-        else:
-            print ("Too long name") 
+        if len(name) > 10:
+            raise ValueError("Too long name") 
+        self._value = name 
 
 
 
 class Phone(Field):
     
-    # def __init__(self, value: str) -> None:
-    #     super().__init__(value)
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
 
-    @property
-    def value(self):
-        return self._value
-    
-    @value.setter
+        
+    @Field.value.setter
     def value(self, phone: str): 
-        if len(phone) <= 12:
-            self._value = phone # яку перевірку зробити?
-        else:
-            print("Too long number. It should not be more than 10 digits")
+        if len(phone) > 12:
+            raise ValueError("Too long number. It should not be more than 10 digits")
+        self._value = phone 
+            
 
-class Birthday:
-    def __init__(self, birthday):
-        self.birthday = birthday
+class Birthday(Field):
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
 
-    @property
-    def value(self):
-        return self.birthday
-    
-    @value.setter
-    def value(self, birthday: str): # приходить строка типу 21.05.2000, потрібно перетворити на дататайм?
-        self.birthday = datetime.strptime(birthday, "%d %B %Y")
+    @staticmethod
+    def valid_date_iso(birthday: str) -> None:
+        try:
+            date.isoformat(birthday)
+        except:
+            ValueError("date must be in format yyyy-mm-dd")
+
+       
+
+    @Field.value.setter
+    def value(self, birthday: str): 
+        self.valid_date_iso(birthday)
+        self._value = birthday
 
 
 
@@ -62,10 +67,8 @@ class Record:
     def __init__(self, name: Name, phone: Phone=None, birthday: Birthday=None) -> None:
         self.name = name
         self.phones = [phone] if phone else []
-        if type(birthday) == str: # чи потрібна ця перевірка?
-            birthday = Birthday(birthday)
-        else:
-            self.birthday = birthday
+      
+        self.birthday = birthday
         
     
     def add_phone(self, phone) -> None:
@@ -79,16 +82,20 @@ class Record:
         index = self.phones.index(old_phone)
         self.phones[index] = new_phone
     
-    def days_to_birthday(self): # для виклику створюється окремо екземпляр, в якому йде перетворення на обєкт класу Birthday і викликається метод
+    def days_to_birthday(self) -> int: # для виклику створюється окремо екземпляр, в якому йде перетворення на обєкт класу Birthday і викликається метод
         if self.birthday == None:
             raise KeyError("No birthday set for the contact.")
         
-        current_datetime = datetime.now()
-        birthday = self.birthday.replace(year=current_datetime.year) #др в цьому році
-        if current_datetime > birthday:
-            birthday = self.birthday.replace(year=current_datetime.year+1)
-
-        return (current_datetime.data() - birthday).days
+        current_date = date.today()
+        birthday = date.fromisoformat(self.birthday.value)
+        age = current_date.year - birthday.year - ((current_date.month, current_date.day) < (birthday.month, birthday.day))
+        if age >= 100:
+            return "Long-lived person"
+        birthday = birthday.replace(year=current_date.year) #др в цьому році
+        if current_date > birthday:
+            birthday = birthday.replace(year=current_date.year+1)
+        return (birthday - current_date).days
+            
         
 
 class AddressBook(UserDict):
@@ -103,7 +110,7 @@ class AddressBook(UserDict):
 if __name__ == "__main__":
     name = Name('Bill')
     phone = Phone('12345671258')
-    birthday = Birthday("22.05.2001")
+    birthday = Birthday("1994-02-26")
     rec = Record(name, phone, birthday)
     ab = AddressBook()
     ab.add_record(rec)
