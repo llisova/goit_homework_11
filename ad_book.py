@@ -96,9 +96,11 @@ class Record:
             birthday = birthday.replace(year=current_date.year+1)
         return (birthday - current_date).days
             
-        
+    def __str__(self):
+        return f"{self.name.value} {[ph.value for ph in self.phones]} {self.birthday.value}"
 
 class AddressBook(UserDict):
+    N = 2
     
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
@@ -109,9 +111,8 @@ class AddressBook(UserDict):
     def iterator(self, n) -> list[dict]:
         contact_list = [] # список записів контактів
         if n:
-            for self.record in self.data.values():
-
-                contact_list.append(self.record)
+            for record in self.data.values():
+                contact_list.append(record)
                         
         return self.__next__(contact_list)
     
@@ -122,7 +123,7 @@ class AddressBook(UserDict):
         for contact in contact_list:
             n_list.append(contact)
             counter +=1
-            if counter >= self.n: # якщо вже створено список із заданої кількості записів
+            if counter >= AddressBook.N: # якщо вже створено список із заданої кількості записів
                 yield n_list
                 n_list.clean()
                 counter = 0
@@ -147,7 +148,7 @@ class AddressBook(UserDict):
                     break
             else:
                 break
-            
+
                 
 
 
@@ -158,14 +159,28 @@ if __name__ == "__main__":
     phone = Phone('12345671258')
     birthday = Birthday("1994-02-26")
     rec = Record(name, phone, birthday)
+
+
+    name = Name('Bob')
+    phone = Phone('12345671258')
+    birthday = Birthday("1994-02-26")
+    rec2 = Record(name, phone, birthday)
+
+    name = Name('Tom')
+    phone = Phone('12345671258')
+    birthday = Birthday("1994-02-26")
+    rec3 = Record(name, phone, birthday)
+
+    name = Name('Bard')
+    phone = Phone('12345671258')
+    birthday = Birthday("1994-02-26")
+    rec4 = Record(name, phone, birthday)
+
     ab = AddressBook()
     ab.add_record(rec)
-    ab.iterator(n=3)
-    # assert isinstance(ab['Bill'], Record)
-    # assert isinstance(ab['Bill'].name, Name)
-    # assert isinstance(ab['Bill'].phones, list)
-    # assert isinstance(ab['Bill'].phones[0], Phone)
-    # assert ab['Bill'].phones[0].value == '12345671258'
-    # print('All Ok)')
+    ab.add_record(rec2)
+    ab.add_record(rec3)
+    ab.add_record(rec4)
+    ab.iterator(n=1)
     print(rec.days_to_birthday())
     
