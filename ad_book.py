@@ -125,7 +125,7 @@ class AddressBook(UserDict):
             counter +=1
             if counter >= AddressBook.N: # якщо вже створено список із заданої кількості записів
                 yield n_list
-                n_list.clean()
+                n_list.clear()
                 counter = 0
         yield n_list
 
